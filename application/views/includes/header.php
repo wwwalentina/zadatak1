@@ -12,8 +12,9 @@
         <header>
             <a href="<?php echo site_url('User/logout');?>">Logout</a>
             <a href="<?php echo site_url('User/loadCreateArticle');?>">Create Article</a>
-            <a href="<?php echo site_url('User/listArticles');?>"> List of articles</a>
-            <a href="<?php echo site_url('User/logout');?>"></a>
+            <a href="<?php echo site_url('User/loadListArticles');?>"> List of articles</a>
+            <a href="<?php echo site_url('User/loadDeleteArticle');?>">Delete article</a>
+            <a href="<?php echo site_url('User/loadUpdateArticle');?>">Update article</a>
         </header>
             <div id="mainPart">
         

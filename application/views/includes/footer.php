@@ -1,58 +1,6 @@
 </div>
 </div>
-<!--        <script src="<?php // echo base_url('assets/js/main.js');     ?>"></script>-->
 <script>
-//    $(document).ready(function () {
-//
-//        $("#postArticleButton").click(function () {
-////                 var article = new Object();  
-////                 article.articleTitle = $('#articleTitle').val();  
-////                 article.articleBody = $('#articleBody').val();
-////        var data = {
-////            articleTitle: $("#articleTitle").val(),
-////            articleBody: $("#articleBody").val()
-////        };
-//            var articleTitle = $("#articleTitle").val();
-//            var jsonData = JSON.stringify(articleTitle);
-////        var articleBody = $("#articleBody").val();
-////            alert(articleTitle);
-//            $.ajax({
-//                url: "<?php //echo site_url();    ?>/User/createArticle",
-//                type: 'POST',
-//                contentType: "application/json; charset=utf-8",
-//                dataType: 'json',
-//                data: { jsonData },
-//                success: function (data) {
-//                    alert(data);
-//                    console.log('aaaaaaaaaaaaaaaaaaaaa');
-//                    console.log(typeof (data));
-//                    console.log(data);
-//                },
-//                error: function (xhr, textStatus, errorThrown) {
-//                    console.log(xhr);
-//                    console.log(textStatus);
-//                    console.log(errorThrown);
-//                }
-//            });
-//        });
-//    });
-
-//function convertToDataURLviaCanvas(url, callback, outputFormat){
-//    var img = new Image();
-//    img.crossOrigin = 'Anonymous';
-//    img.onload = function(){
-//        var canvas = document.createElement('CANVAS');
-//        var ctx = canvas.getContext('2d');
-//        var dataURL;
-//        canvas.height = this.height;
-//        canvas.width = this.width;
-//        ctx.drawImage(this, 0, 0);
-//        dataURL = canvas.toDataURL(outputFormat);
-//        callback(dataURL);
-//        canvas = null; 
-//    };
-//    img.src = url;
-//}
 
     const isValidElement = element => {
         return element.name && element.value;
@@ -61,7 +9,6 @@
 
     const formToJSON = elements => [].reduce.call(elements, (data, element) => {
 
-            // Make sure the element has the required properties.
             if (isValidElement(element)) {
                 data[element.name] = element.value;
             }
@@ -78,31 +25,21 @@
 
         // Call our function to get the form data.
         const data = formToJSON(form.elements);
-
         // Demo only: print the form data onscreen as a formatted JSON object.
         const dataContainer = document.getElementsByClassName('resultsDisplay')[0];
 
-        // Use `JSON.stringify()` to make the output valid, human-readable JSON.
         dataContainer.textContent = JSON.stringify(data, null, "  ");
 
         var jsonData = dataContainer.textContent;
 
-        // ...this is where we’d actually do something with the form data...
-//        var parsedData = JSON.parse(jsonData);
-
-
-
-
-//        alert(typeof (parsedData));
         alert(jsonData);
 
-// data bez {} je ulazila u bazu
         $.ajax({
             url: "<?php echo site_url(); ?>/User/createArticle",
             type: 'POST',
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data:  jsonData,
+            data: jsonData,
             success: function (data) {
                 alert(data);
                 console.log('aaaaaaaaaaaaaaaaaaaaa');
@@ -142,7 +79,7 @@
                 document.getElementById("img").src = e.target.result;
                 document.getElementById("imgOutput").value = e.target.result;
             });
-            
+
             FR.readAsDataURL(this.files[0]);
         }
 
@@ -154,30 +91,119 @@
         inImg.addEventListener("change", readFile);
     }
 
+    $.ajax({
+        url: "<?php echo site_url(); ?>/User/listArticles",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data2) {
 
-        $.ajax({
-            url: "<?php echo site_url(); ?>/User/listArticles",
-            type: 'GET',
-            dataType: 'json',
-            success: function (data2) {
-//                    alert(data);
-//                    console.log('bbbbbb');
-//                    console.log(typeof (data));
-//                    console.log(data.length);
-                var decoded = JSON.parse(data2);
-                for (i = 0; i < decoded.length; i++) {
-                    var articleTitleFromDatabase = decoded[i]['title'];
-                    var articleBodyFromDatabase = decoded[i]['body'];
-//                        var articleImageFromDatabase = decoded[i]['image'];
-//                    document.getElementById('article').innerHTML = "This is title: " + articleTitleFromDatabase + "<br>This is article body: " + articleBodyFromDatabase;
+            console.log(data2);
+
+            for (var i = 0; i < data2.length; i++) {
+
+                var singleArticleId = data2[i]["id"];
+                var singleArticleTitle = data2[i]["title"];
+                var singleArticleBody = data2[i]["body"];
+                var singleArticleImage = data2[i]["image"];
+
+                if (goesInHtmlListArticles == undefined) {
+                    var goesInHtmlListArticles = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div>";
+                } else {
+                    var goesInHtmlListArticles = goesInHtmlListArticles + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div>";
                 }
+
+                if (goesInHtmlDeleteArticle == undefined) {
+                    var goesInHtmlDeleteArticle = "" + "<div class='singleListArticleDiv'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button class='deleteButton' value='"+singleArticleId+"' id='"+singleArticleId+"'>Delete article</button></div>";
+                } else {
+                    var goesInHtmlDeleteArticle = goesInHtmlDeleteArticle + "<div class='singleListArticleDiv'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button class='deleteButton' value='"+singleArticleId+"' id='"+singleArticleId+"'>Delete article</button></div>";
+                }
+
+                if (goesInHtmlUpdateArticle == undefined) {
+                    var goesInHtmlUpdateArticle = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button>Update article</button></div>";
+                } else {
+                    var goesInHtmlUpdateArticle = goesInHtmlUpdateArticle + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button>Update article</button></div>";
+                }
+
+                var currentPage = window.location.href;
+
+                if (currentPage == "<?php echo site_url(); ?>/User/loadListArticles") {
+                    document.getElementById('divListArticles').innerHTML = goesInHtmlListArticles;
+                } else if (currentPage == "<?php echo site_url(); ?>/User/loadDeleteArticle") {
+                    document.getElementById('divDeleteArticle').innerHTML = goesInHtmlDeleteArticle;
+                } else if (currentPage == "<?php echo site_url(); ?>/User/loadUpdateArticle") {
+                    document.getElementById('divUpdateArticle').innerHTML = goesInHtmlUpdateArticle;
+                }
+
+                if (currentPage.substring(currentPage.lastIndexOf('/') + 1) == singleArticleId) {
+                    var showFullArticle = "<div><img src='" + singleArticleImage + "'></div><div><h1>" + singleArticleTitle + "</h1>" + singleArticleBody + "</div>";
+                    var showFullArticleInInputFields = "<form name='formUpdate' id='formUpdate'><input type='text' name='articleTitleUpdate' id='articleTitleUpdate' size='59' value='" + singleArticleTitle + "'><br><textarea name='articleBodyUpdate' rows='25' id='articleBodyUpdate' cols='60'>" + singleArticleBody + "</textarea><br><output name='articlePictureUpdate' id=imgOutput'></output><br><input type='submit' name='submit' value='Submit'></form>"
+                    var pathArray = window.location.pathname.split('/');
+                    var pathArrayLocation = pathArray[4];
+                    if (pathArrayLocation == "loadFullArticle") {
+                        document.getElementById("fullSingleArticle").innerHTML = showFullArticle;
+                    } else {
+                        document.getElementById("fullSingleArticleUpdateDiv").innerHTML = showFullArticleInInputFields;
+                    }
+                }
+
+            }
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.log(xhr);
+            console.log(textStatus);
+            console.log(errorThrown);
+        }
+    });
+
+//
+    var postForm = $('#formUpdate');
+
+    var jsonData = function (form) {
+        var arrData = form.serializeArray(),
+                objData = {};
+
+        $.each(arrData, function (index, elem) {
+            objData[elem.name] = elem.value;
+        });
+
+        return JSON.stringify(objData);
+    };
+
+    $('body').on('submit', '#formUpdate', function (e) {
+
+        e.preventDefault();
+        alert('jejejejeeeeeeeeeeeeeeeeeeej');
+        $.ajax({
+            url: "<?php echo site_url(); ?>/User/updateArticle",
+            method: 'POST',
+            data: jsonData(postForm),
+            crossDomain: true,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                console.log(data);
             },
-            error: function (xhr, textStatus, errorThrown) {
-                console.log(xhr);
-                console.log(textStatus);
-                console.log(errorThrown);
+            error: function (error) {
+                console.log(error);
             }
         });
+    });
+
+
+     $('body').on('click','.deleteButton', function () {
+             alert('woowowo');
+        var url_id = $(this).val();
+        alert(url_id);
+        $.ajax({
+            url: '<?php echo site_url(); ?>/User/deleteArticle/'+url_id,
+            type: 'DELETE',
+            success: function (result) {
+                console.log(result);
+               
+            }
+        });
+
+    });
 
 
 
