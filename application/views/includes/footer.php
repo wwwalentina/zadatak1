@@ -86,6 +86,7 @@
     }
 
 
+
     var inImg = document.getElementById("inputImage");
     if (inImg) {
         inImg.addEventListener("change", readFile);
@@ -107,42 +108,25 @@
                 var singleArticleImage = data2[i]["image"];
 
                 if (goesInHtmlListArticles == undefined) {
-                    var goesInHtmlListArticles = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div>";
+                    var goesInHtmlListArticles = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h class='singleArticleTitleInList'>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div><br>";
                 } else {
-                    var goesInHtmlListArticles = goesInHtmlListArticles + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div>";
+                    var goesInHtmlListArticles = goesInHtmlListArticles + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticle/" + singleArticleId + "' id='" + singleArticleId + "'><h class='singleArticleTitleInList'>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a></div><br>";
                 }
 
-                if (goesInHtmlDeleteArticle == undefined) {
-                    var goesInHtmlDeleteArticle = "" + "<div class='singleListArticleDiv'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button class='deleteButton' value='"+singleArticleId+"' id='"+singleArticleId+"'>Delete article</button></div>";
-                } else {
-                    var goesInHtmlDeleteArticle = goesInHtmlDeleteArticle + "<div class='singleListArticleDiv'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button class='deleteButton' value='"+singleArticleId+"' id='"+singleArticleId+"'>Delete article</button></div>";
-                }
 
-                if (goesInHtmlUpdateArticle == undefined) {
-                    var goesInHtmlUpdateArticle = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button>Update article</button></div>";
-                } else {
-                    var goesInHtmlUpdateArticle = goesInHtmlUpdateArticle + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleId + "' id='" + singleArticleId + "'><h>" + singleArticleTitle + "</h>" + "<p>" + singleArticleBody + "</p></a><button>Update article</button></div>";
-                }
 
                 var currentPage = window.location.href;
 
                 if (currentPage == "<?php echo site_url(); ?>/User/loadListArticles") {
                     document.getElementById('divListArticles').innerHTML = goesInHtmlListArticles;
-                } else if (currentPage == "<?php echo site_url(); ?>/User/loadDeleteArticle") {
-                    document.getElementById('divDeleteArticle').innerHTML = goesInHtmlDeleteArticle;
-                } else if (currentPage == "<?php echo site_url(); ?>/User/loadUpdateArticle") {
-                    document.getElementById('divUpdateArticle').innerHTML = goesInHtmlUpdateArticle;
                 }
 
                 if (currentPage.substring(currentPage.lastIndexOf('/') + 1) == singleArticleId) {
-                    var showFullArticle = "<div><img src='" + singleArticleImage + "'></div><div><h1>" + singleArticleTitle + "</h1>" + singleArticleBody + "</div>";
-                    var showFullArticleInInputFields = "<form name='formUpdate' id='formUpdate'><input type='text' name='articleTitleUpdate' id='articleTitleUpdate' size='59' value='" + singleArticleTitle + "'><br><textarea name='articleBodyUpdate' rows='25' id='articleBodyUpdate' cols='60'>" + singleArticleBody + "</textarea><br><output name='articlePictureUpdate' id=imgOutput'></output><br><input type='submit' name='submit' value='Submit'></form>"
+                    var showFullArticle = "<div><img src='" + singleArticleImage + "'></div><div><h1 class='singleArticleTitle'>" + singleArticleTitle + "</h1>" + singleArticleBody + "</div>";
                     var pathArray = window.location.pathname.split('/');
                     var pathArrayLocation = pathArray[4];
                     if (pathArrayLocation == "loadFullArticle") {
                         document.getElementById("fullSingleArticle").innerHTML = showFullArticle;
-                    } else {
-                        document.getElementById("fullSingleArticleUpdateDiv").innerHTML = showFullArticleInInputFields;
                     }
                 }
 
@@ -156,10 +140,12 @@
         }
     });
 
-//
-    var postForm = $('#formUpdate');
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+    // _________________________________jsonData FUNCTION__________________
 
     var jsonData = function (form) {
+
         var arrData = form.serializeArray(),
                 objData = {};
 
@@ -167,39 +153,122 @@
             objData[elem.name] = elem.value;
         });
 
-        return JSON.stringify(objData);
+        var jsonStringifyData = JSON.stringify(objData);
+
+        return jsonStringifyData;
     };
 
-    $('body').on('submit', '#formUpdate', function (e) {
+    $.ajax({
+        url: "<?php echo site_url(); ?>/User/getArticlesForLogedUsers",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data3) {
 
-        e.preventDefault();
-        alert('jejejejeeeeeeeeeeeeeeeeeeej');
-        $.ajax({
-            url: "<?php echo site_url(); ?>/User/updateArticle",
-            method: 'POST',
-            data: jsonData(postForm),
-            crossDomain: true,
-            contentType: 'application/json; charset=utf-8',
-            success: function (data) {
-                console.log(data);
-            },
-            error: function (error) {
-                console.log(error);
+            console.log(data3);
+
+            for (var i = 0; i < data3.length; i++) {
+                var singleArticleIdOfLogedUser = data3[i]["id"];
+                var singleArticleTitleOfLogedUser = data3[i]["title"];
+                var singleArticleBodyOfLogedUser = data3[i]["body"];
+                var singleArticleImageOfLogedUser = data3[i]["image"];
+                var singleArticleAuthorIdOfLogedUser = data3[i]["authorId"];
+                
+
+                if (goesInHtmlDeleteArticle == undefined) {
+                    var goesInHtmlDeleteArticle = "" + "<div class='singleListArticleDiv'><button class='deleteButton' value='" + singleArticleIdOfLogedUser + "' id='" + singleArticleIdOfLogedUser + "'>Delete article</button><br><h class='singleArticleTitleInList'>" + singleArticleTitleOfLogedUser + "</h>" + "<p>" + singleArticleBodyOfLogedUser + "</p></a></div><br>";
+                } else {
+                    var goesInHtmlDeleteArticle = goesInHtmlDeleteArticle + "<div class='singleListArticleDiv'><button class='deleteButton' value='" + singleArticleIdOfLogedUser + "' id='" + singleArticleIdOfLogedUser + "'>Delete article</button><br><h class='singleArticleTitleInList'>" + singleArticleTitleOfLogedUser + "</h>" + "<p>" + singleArticleBodyOfLogedUser + "</p></a></div><br>";
+                }
+
+                if (goesInHtmlUpdateArticle == undefined) {
+                    var goesInHtmlUpdateArticle = "" + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleIdOfLogedUser + "' id='" + singleArticleIdOfLogedUser + "'><h class='singleArticleTitleInList'>" + singleArticleTitleOfLogedUser + "</h>" + "<p>" + singleArticleBodyOfLogedUser + "</p></a></div><br>";
+                } else {
+                    var goesInHtmlUpdateArticle = goesInHtmlUpdateArticle + "<div class='singleListArticleDiv'><a href='<?php echo site_url(); ?>/User/loadFullArticleUpdate/" + singleArticleIdOfLogedUser + "' id='" + singleArticleIdOfLogedUser + "'><h class='singleArticleTitleInList'>" + singleArticleTitleOfLogedUser + "</h>" + "<p>" + singleArticleBodyOfLogedUser + "</p></a></div><br>";
+                }
+                
+                var currentPage = window.location.href;
+
+
+                if (currentPage == "<?php echo site_url(); ?>/User/loadDeleteArticle") {
+                    document.getElementById('divDeleteArticle').innerHTML = goesInHtmlDeleteArticle;
+                } else if (currentPage == "<?php echo site_url(); ?>/User/loadUpdateArticle") {
+                    document.getElementById('divUpdateArticle').innerHTML = goesInHtmlUpdateArticle;
+                }
+
+                if (currentPage.substring(currentPage.lastIndexOf('/') + 1) == singleArticleIdOfLogedUser) {
+                    var showFullArticleInInputFields = "<form name='formUpdate' class='formUpdate' id='formUpdate'><input type='hidden' name='articleHiddenUpdate' value='"+singleArticleIdOfLogedUser+"'><input type='text' name='articleTitleUpdate' id='articleTitleUpdate' size='59' value='" + singleArticleTitleOfLogedUser + "'><br><textarea name='articleBodyUpdate' rows='25' id='articleBodyUpdate' cols='60'>" + singleArticleBodyOfLogedUser + "</textarea><br><img id='imgUpdate' height='150'><output name='articlePictureUpdate' id='imgOutputUpdate'></output><input type='file' id='inputImageUpdate'><br><br><input type='submit' name='submit' value='submit'></form>"
+                    var pathArray = window.location.pathname.split('/');
+                    var pathArrayLocation = pathArray[4];
+                    if (pathArrayLocation == "loadFullArticleUpdate") {
+                        document.getElementById("fullSingleArticleUpdateDiv").innerHTML = showFullArticleInInputFields;
+                    }
+                }
+                
+                
+                
+                           
+
+                
+
             }
-        });
+            
+             var postForm = $('#formUpdate');
+            
+            var inImgUpdate = document.getElementById("inputImageUpdate");
+            if (inImgUpdate) {
+                inImgUpdate.addEventListener("change", readFileUpdate);
+            }
+
+
+
+            postForm.on('submit', function (e) {
+                e.preventDefault();
+//                var url_id = currentPage.substring(currentPage.lastIndexOf('/') + 1);
+//                alert(url_id);
+                alert(jsonData(postForm));
+                $.ajax({
+                    url: "<?php echo site_url(); ?>/User/updateArticle",
+                    method: 'POST',
+                    data: jsonData(postForm),
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        console.log(data);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+            
+
+        }
     });
 
+    function readFileUpdate() {
 
-     $('body').on('click','.deleteButton', function () {
-             alert('woowowo');
+        if (this.files && this.files[0]) {
+
+            var FR = new FileReader();
+
+            FR.addEventListener("load", function (e) {
+                document.getElementById("imgUpdate").src = e.target.result;
+                document.getElementById("imgOutputUpdate").value = e.target.result;
+            });
+
+            FR.readAsDataURL(this.files[0]);
+        }
+
+    }
+
+    $('body').on('click', '.deleteButton', function () {
         var url_id = $(this).val();
-        alert(url_id);
         $.ajax({
-            url: '<?php echo site_url(); ?>/User/deleteArticle/'+url_id,
+            url: '<?php echo site_url(); ?>/User/deleteArticle/' + url_id,
             type: 'DELETE',
             success: function (result) {
-                console.log(result);
-               
+                alert('Article is deleted');
             }
         });
 

@@ -53,14 +53,10 @@ class ModelUser extends CI_Model {
         }
     }
 
-    public function updateArticle($articleTitleUpdate, $articleBodyUpdate, $articlePictureUpdate) {
+    public function updateArticle($articleTitleUpdate, $articleBodyUpdate, $articlePictureUpdate, $articleHiddenUpdate) {
         $autorId = $this->session->userdata("user")->autorId;
-        $this->db->set('title', $articleTitleUpdate);
-        $this->db->set('body', $articleBodyUpdate);
-        $this->db->set('image', $articlePictureUpdate);
-        $this->db->where('title', $articleTitleUpdate);
-        $this->db->update('articles');
-        $query = $this->db->query("SELECT * FROM articles where title='$articleTitleUpdate'");
+        $query = $this->db->query("UPDATE articles
+        SET title = '$articleTitleUpdate', body= '$articleBodyUpdate', image = '$articlePictureUpdate' WHERE id = '$articleHiddenUpdate' AND authorId = '$autorId'");
         $updatedArticle = $query->row_array();
         if ($updatedArticle) {
             return $updatedArticle;
@@ -75,8 +71,18 @@ class ModelUser extends CI_Model {
         return $result;
     }
 
+    public function fetchArticlesForLogedUsers() {
+        $autorId = $this->session->userdata("user")->autorId;
+        $this->db->where('authorId', $autorId);
+        $query = $this->db->get('articles');
+        $result = $query->result_array();
+        return $result;
+    }
+
     public function deleteArticle($id) {
+        $autorId = $this->session->userdata("user")->autorId;
         $this->db->where('id', $id);
+        $this->db->where('authorId', $autorId);
         $this->db->delete('articles');
     }
 
